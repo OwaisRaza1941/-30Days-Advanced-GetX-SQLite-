@@ -1,0 +1,103 @@
+import 'dart:io';
+import 'package:day01_project_setup/app/data/models/students_model.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:sqflite/sqflite.dart';
+
+class DBKeys {
+  // Database name
+  static const String dbName = "students.db";
+
+  // Table name
+  static const String studentTable = "students";
+
+  // Columns
+  static const String colId = "id";
+  static const String colName = "name";
+  static const String colAge = "age";
+  static const String colEmail = "email";
+}
+
+class DBHelper {
+  /// Singletone
+  DBHelper._();
+
+  static final DBHelper getInstance = DBHelper._();
+
+  Database? _myDB;
+
+  /// if exist path(then open else onCreate )
+  Future<Database> _getDB() async {
+    if (_myDB != null) {
+      return _myDB!;
+    } else {
+      return await _openDB();
+    }
+  }
+
+  //OPEN DB
+  Future<Database> _openDB() async {
+    Directory dir = await getApplicationDocumentsDirectory();
+    String dbPath = join('${dir.path}db.students');
+
+    return openDatabase(
+      dbPath,
+      onCreate: (db, version) {
+        //// create all your tables here
+        db.execute(
+          'create table ${DBKeys.studentTable} (${DBKeys.colId} INTIGER PRIMARY KEY AUTOINCREMENT, ${DBKeys.colName} TEXT, ${DBKeys.colAge} INTEGER, ${DBKeys.colEmail} TEXT)',
+        );
+
+        ///
+        ///
+        ///
+        ///
+        ///
+      },
+      version: 1,
+    );
+  }
+
+  /// All Queries Here
+
+  /// INSERTION
+  Future<bool> _addStudents(StudentsModel student) async {
+    final db = await _getDB();
+    int rowsEffected = await db.insert(DBKeys.studentTable, student.toMap());
+
+    return rowsEffected > 0;
+  }
+
+  /// GET ALL STUDENTS
+  Future<List<Map<String, dynamic>>> _getAllStudents() async {
+    final db = await _getDB();
+
+    List<Map<String, dynamic>> mData = await db.query(DBKeys.studentTable);
+
+    return mData;
+  }
+
+  /// UPDATED STUDENTS
+  Future<bool> _updatedStudents(StudentsModel student) async {
+    final db = await _getDB();
+
+    int rowsEffected = await db.update(
+      DBKeys.studentTable,
+      student.toMap(),
+      where: '${DBKeys.colId} = ?',
+      whereArgs: [student.id],
+    );
+
+    return rowsEffected > 0;
+  }
+
+  ///DELETE STUDENTS
+  Future<bool> _deleteStudents(int id) async {
+    final db = await _getDB();
+    int rowsEffected = await db.delete(
+      DBKeys.colId,
+      where: '${DBKeys.colId} = $id',
+    );
+    return rowsEffected > 0;
+  }
+}
