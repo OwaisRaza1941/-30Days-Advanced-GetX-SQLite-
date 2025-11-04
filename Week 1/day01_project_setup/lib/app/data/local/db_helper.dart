@@ -38,7 +38,7 @@ class DBHelper {
   //OPEN DB
   Future<Database> _openDB() async {
     Directory dir = await getApplicationDocumentsDirectory();
-    String dbPath = join('${dir.path}db.students');
+    String dbPath = join(dir.path, DBKeys.dbName);
 
     return openDatabase(
       dbPath,
@@ -61,7 +61,7 @@ class DBHelper {
   /// All Queries Here
 
   /// INSERTION
-  Future<bool> _addStudents(StudentsModel student) async {
+  Future<bool> add(StudentsModel student) async {
     final db = await _getDB();
     int rowsEffected = await db.insert(DBKeys.studentTable, student.toMap());
 
@@ -69,7 +69,7 @@ class DBHelper {
   }
 
   /// GET ALL STUDENTS
-  Future<List<Map<String, dynamic>>> _getAllStudents() async {
+  Future<List<Map<String, dynamic>>> get() async {
     final db = await _getDB();
 
     List<Map<String, dynamic>> mData = await db.query(DBKeys.studentTable);
@@ -78,7 +78,7 @@ class DBHelper {
   }
 
   /// UPDATED STUDENTS
-  Future<bool> _updatedStudents(StudentsModel student) async {
+  Future<bool> update(StudentsModel student) async {
     final db = await _getDB();
 
     int rowsEffected = await db.update(
@@ -92,10 +92,10 @@ class DBHelper {
   }
 
   ///DELETE STUDENTS
-  Future<bool> _deleteStudents(int id) async {
+  Future<bool> delete(int id) async {
     final db = await _getDB();
     int rowsEffected = await db.delete(
-      DBKeys.colId,
+      DBKeys.studentTable,
       where: '${DBKeys.colId} = $id',
     );
     return rowsEffected > 0;
