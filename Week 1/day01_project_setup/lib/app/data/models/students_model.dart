@@ -1,7 +1,7 @@
 import 'package:day01_project_setup/app/data/local/db_helper.dart';
 
 class StudentsModel {
-  String? id;
+  int? id;
   String? name;
   int? age;
   String? email;

@@ -1,14 +1,15 @@
-import 'package:day01_project_setup/app/data/dao/students_dao.dart';
 import 'package:day01_project_setup/app/data/models/students_model.dart';
+import 'package:day01_project_setup/app/repository/student_repository.dart';
 import 'package:get/get.dart';
 
 class StudentController extends GetxController {
-  final StudentsDAO _studentsDAO = StudentsDAO();
+  final StudentRepository _repository = StudentRepository();
 
   RxList<StudentsModel> studentsList = <StudentsModel>[].obs;
 
+  /// Add Students
   Future<void> addStudents(StudentsModel student) async {
-    final success = await _studentsDAO.addStudent(student);
+    final success = await _repository.addStudents(student);
 
     if (success) {
       getAllStudents();
@@ -23,12 +24,13 @@ class StudentController extends GetxController {
 
   /// Get All Students
   Future<void> getAllStudents() async {
-    studentsList.value = await _studentsDAO.getAllStudents();
+    final data = await _repository.getAllStudents();
+    studentsList.assignAll(data);
   }
 
   /// Upadated Students
   Future<void> updatedStudents(StudentsModel student) async {
-    final success = await _studentsDAO.updateStudent(student);
+    final success = await _repository.updateStudent(student);
 
     if (success) {
       getAllStudents();
@@ -43,7 +45,7 @@ class StudentController extends GetxController {
 
   /// Delete Student
   Future<void> deleteStdudents(int id) async {
-    final success = await _studentsDAO.deleteStudent(id);
+    final success = await _repository.deleteStudent(id);
     if (success) {
       getAllStudents();
     } else {
@@ -53,5 +55,11 @@ class StudentController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
     }
+  }
+
+  @override
+  Future<void> onInit() async {
+    super.onInit();
+    await getAllStudents();
   }
 }

@@ -1,7 +1,5 @@
-import 'dart:io';
 import 'package:day01_project_setup/app/data/models/students_model.dart';
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DBKeys {
@@ -37,24 +35,20 @@ class DBHelper {
 
   //OPEN DB
   Future<Database> _openDB() async {
-    Directory dir = await getApplicationDocumentsDirectory();
-    String dbPath = join(dir.path, DBKeys.dbName);
+    String dbPath = join(await getDatabasesPath(), DBKeys.dbName);
 
-    return openDatabase(
+    return await openDatabase(
       dbPath,
-      onCreate: (db, version) {
-        //// create all your tables here
-        db.execute(
-          'create table ${DBKeys.studentTable} (${DBKeys.colId} INTIGER PRIMARY KEY AUTOINCREMENT, ${DBKeys.colName} TEXT, ${DBKeys.colAge} INTEGER, ${DBKeys.colEmail} TEXT)',
-        );
-
-        ///
-        ///
-        ///
-        ///
-        ///
-      },
       version: 1,
+      onCreate: (db, version) async {
+        await db.execute(
+          'CREATE TABLE ${DBKeys.studentTable} ('
+          '${DBKeys.colId} INTEGER PRIMARY KEY AUTOINCREMENT, '
+          '${DBKeys.colName} TEXT, '
+          '${DBKeys.colAge} INTEGER, '
+          '${DBKeys.colEmail} TEXT)',
+        );
+      },
     );
   }
 

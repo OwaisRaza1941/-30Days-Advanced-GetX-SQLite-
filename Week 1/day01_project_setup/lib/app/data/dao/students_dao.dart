@@ -20,6 +20,7 @@ class StudentsDAO {
   Future<List<StudentsModel>> getAllStudents() async {
     try {
       final data = await _dbHelper.get();
+      print("📌 DAO Raw Data FROM DB: $data"); // <- Add thi
       return data.map((e) => StudentsModel.fromMap(e)).toList();
     } catch (e) {
       print("StudentsDAO.getStudents Error: $e");
