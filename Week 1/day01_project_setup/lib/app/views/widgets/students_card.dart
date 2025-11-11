@@ -29,7 +29,7 @@ class StudentsCard extends StatelessWidget {
             children: [
               IconButton(
                 onPressed: () {
-                  showDaloge(context: context, isEdite: true, std: std);
+                  showStudentDialog(context: context, isEdit: true, std: std);
                 },
                 icon: Icon(Icons.edit),
               ),

@@ -4,80 +4,88 @@ import 'package:day01_project_setup/app/data/models/students_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-Future<dynamic> showDaloge({
+Future<void> showStudentDialog({
   required BuildContext context,
-  bool isEdite = false,
+  required bool isEdit,
   StudentsModel? std,
 }) {
-  TextEditingController nameController = TextEditingController(
-    text: isEdite ? std?.name : '',
-  );
-  TextEditingController emailController = TextEditingController(
-    text: isEdite ? std?.email : '',
-  );
-  TextEditingController ageController = TextEditingController(
-    text: isEdite ? std?.age.toString() : '',
+  final nameController = TextEditingController(text: isEdit ? std?.name : '');
+  final emailController = TextEditingController(text: isEdit ? std?.email : '');
+  final ageController = TextEditingController(
+    text: isEdit ? (std?.age?.toString() ?? '') : '',
   );
 
-  StudentController controller = Get.find();
+  final StudentController controller = Get.find();
 
   return showDialog(
     context: context,
     builder: (context) {
       return AlertDialog(
-        contentPadding: EdgeInsets.all(50),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(isEdite ? 'Updated Student' : "Add Student"),
-            SizedBox(height: 20),
-
-            textFields(hintText: 'Name', controller: nameController),
-            SizedBox(height: 15),
-            textFields(hintText: 'Email', controller: emailController),
-            SizedBox(height: 15),
-            textFields(hintText: 'Age', controller: ageController),
-
-            SizedBox(height: 20),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    Get.back();
-                  },
-                  child: Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    if (nameController.text.isEmpty ||
-                        emailController.text.isEmpty) {
-                      Get.snackbar('Messege', 'All Feilds Required!');
-                      return;
-                    }
-
-                    StudentsModel student = StudentsModel(
-                      id: std?.id,
-                      name: nameController.text,
-                      email: emailController.text,
-                      age: int.parse(ageController.text),
-                    );
-
-                    if (isEdite) {
-                      await controller.updatedStudents(student);
-                    } else {
-                      await controller.addStudents(student);
-                    }
-                    Get.back();
-                  },
-                  child: Text(isEdite ? 'Updated ' : "Add "),
-                ),
-              ],
-            ),
-          ],
+        title: Text(isEdit ? 'Update Student' : 'Add Student'),
+        contentPadding: EdgeInsets.all(20),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              textFields(hintText: 'Name', controller: nameController),
+              SizedBox(height: 12),
+              textFields(hintText: 'Email', controller: emailController),
+              SizedBox(height: 12),
+              textFields(hintText: 'Age', controller: ageController),
+            ],
+          ),
         ),
+        actions: [
+          Obx(() {
+            final saving = controller.isSaving.value;
+            return TextButton(
+              onPressed: saving ? null : () => Get.back(),
+              child: Text('Cancel'),
+            );
+          }),
+          Obx(() {
+            final saving = controller.isSaving.value;
+            return ElevatedButton(
+              onPressed: saving
+                  ? null
+                  : () async {
+                      // Validation
+                      if (nameController.text.trim().isEmpty ||
+                          emailController.text.trim().isEmpty) {
+                        Get.snackbar('Validation', 'All fields are required');
+                        return;
+                      }
+                      final ageVal = int.tryParse(ageController.text.trim());
+                      if (ageVal == null) {
+                        Get.snackbar('Validation', 'Valid age required');
+                        return;
+                      }
+
+                      final student = StudentsModel(
+                        id: isEdit ? std?.id : null,
+                        name: nameController.text.trim(),
+                        email: emailController.text.trim(),
+                        age: ageVal,
+                      );
+
+                      if (isEdit) {
+                        await controller.updatedStudents(student);
+                      } else {
+                        await controller.addStudents(student);
+                      }
+
+                      if (!controller.isSaving.value) Get.back();
+                    },
+              child: saving
+                  ? SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(isEdit ? 'Update' : 'Add'),
+            );
+          }),
+        ],
       );
     },
   );
