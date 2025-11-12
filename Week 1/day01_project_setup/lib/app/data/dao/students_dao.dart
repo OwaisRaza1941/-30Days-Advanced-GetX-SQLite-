@@ -4,18 +4,7 @@ import 'package:day01_project_setup/app/data/models/students_model.dart';
 class StudentsDAO {
   final DBHelper _dbHelper = DBHelper.getInstance;
 
-  /// Add student (wraps DBHelper private method)
-  Future<bool> addStudent(StudentsModel student) async {
-    try {
-      final result = await _dbHelper.add(student);
-      return result;
-    } catch (e) {
-      // optional: log error
-      print("StudentDao.addStudent error: $e");
-      return false;
-    }
-  }
-
+ 
   /// GET All Students
   Future<List<StudentsModel>> getAllStudents() async {
     try {

@@ -53,7 +53,6 @@ class StudentController extends GetxController {
       if (success) {
         await getAllStudents();
         await Future.delayed(Duration(seconds: 2));
-
         Get.snackbar('Success', 'Student Updated');
       } else {
         Get.snackbar('Error', 'Failed to add student');
